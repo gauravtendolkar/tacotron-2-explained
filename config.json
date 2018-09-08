@@ -1,0 +1,37 @@
+{
+  "model":{
+    "regularization":{
+      "encoder_convolution_dropout": 0.5,
+      "encoder_lstm_zoneout": 0.1,
+      "decoder_prenet_dropout": 0.5,
+      "decoder_lstm_zoneout": 0.1,
+      "decoder_projection_dropout": 0.5,
+      "postnet_convolution_dropout": 0.5
+    }
+  },
+  "data":{
+    "wav_sample_rate": 16000,
+    "frame_length": 1024,
+    "frame_step": 512,
+    "fft_length": 1024,
+    "num_mel_bins": 64,
+    "lower_edge_hertz": 80.0,
+    "upper_edge_hertz": 7600.0,
+    "num_csv_header_lines": 1,
+    "csv_columns": ["text","audio_path"],
+    "csv_column_defaults": [[""], [""]],
+    "start_token": -1.0,
+    "end_token": -2.0
+  },
+  "hyper_params":{
+    "epochs": 50,
+    "batch_size": 4,
+    "starting_learning_rate": 0.001,
+    "learning_rate_schedule": "t",
+    "optimizer": "ADAM"
+  },
+  "general":{
+    "data_root": "",
+    "input_csv": "sample_data/sample_data.csv"
+  }
+}
