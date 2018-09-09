@@ -6,7 +6,7 @@ This repository is meant to teach the intricacies of writing advanced Recurrent 
 
 The paper followed in this repository is - [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884). The repository only implements the Text to Mel Spectrogram part (called Tacotron 2). The repository does not include the vocoder used to synthesize audio.
 
-This is a production grade code which can be used as state of the art TTS frontend. The blog post here shows some audio samples synthesized with a Griffin Lin vocoder. But the code has excess comments to aid a novice Tensorflow user which could be a hindrance. 
+This is a production grade code which can be used as state of the art TTS frontend. The blog post \[TODO\] shows some audio samples synthesized with a Griffin Lin vocoder. But the code has excess comments to aid a novice Tensorflow user which could be a hindrance. 
 
 The repository also uses Tensorflow's tf.data API for pre-processing and Estimator API for modularity
  
@@ -20,11 +20,12 @@ model/ (Contains model architecture)
     utils.py (Utility functions)
     loss.py (Model loss)
     wrappers.py (Wrappers for RNN cells)
+    helpers.py (Decoder helpers)
     external/ (Code adapted from other repositories)
         attention.py (Location sensitive attention)
         zoneout_wrapper.py (Zoneout)
 train.py (Run training)
-hparams.yaml (Hyper parameters)
+config.json (Hyper parameters)
 synthesize_results.py (Generate Mels from text)
 ```
 
