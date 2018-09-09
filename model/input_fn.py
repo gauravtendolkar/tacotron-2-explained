@@ -1,23 +1,8 @@
 import tensorflow as tf
 from tensorflow.contrib import ffmpeg
-from collections import defaultdict
 
 
-class Vocabulary:
-    def __init__(self):
-        _allowed_characters = 'abcdefghijklmnopqrstuvwxyz1234567890!.,#$%@()=+*/'
-        self.vocabulary_size = len(_allowed_characters)
-        self._char2idx = dict([(_allowed_characters[i], i) for i in range(len(_allowed_characters))])
-        self._idx2char = dict([(value, key) for key , value in self._char2idx.items()])
-        self._char2idx = defaultdict(lambda: self.vocabulary_size, self._char2idx)
-        self._idx2char = defaultdict(lambda: self.vocabulary_size, self._idx2char)
-
-    def text2idx(self, text):
-        encoded = tf.py_func(lambda x: self._char2idx[x.lower()], [text], tf.int64, stateful=False)
-        return encoded
-
-
-def parse_csv_line(line, config):
+def parse_csv_line(line, vocabulary, config):
     # tf.decode_csv converts CSV records to tensors. Not read CSV files!
     # Standard procedure to read any file is with tf.data.TextLineDataset
     # After reading the file into a tensor (NUM_LINES x 1), we interpret the tensor as being in CSV format
@@ -50,7 +35,6 @@ def parse_csv_line(line, config):
     # Also note that embedding layer will expect indexes of dtype tf.int64
     # Also, the vocabulary dict stores values as int64
 
-    vocabulary = Vocabulary()
     text_idx = tf.SparseTensor(text.indices,
                                tf.map_fn(vocabulary.text2idx, text.values, dtype=tf.int64),
                                text.dense_shape)
@@ -118,10 +102,10 @@ def parse_csv_line(line, config):
             'debug_data': waveform}
 
 
-def train_input_fn(config):
+def train_input_fn(vocabulary, config):
     dataset = tf.data.TextLineDataset(config['general']['input_csv'])
     dataset = dataset.skip(config['data']['num_csv_header_lines'])
-    dataset = dataset.map(lambda line: parse_csv_line(line, config))
+    dataset = dataset.map(lambda line: parse_csv_line(line, vocabulary, config))
     dataset = dataset.repeat(config['hyper_params']['epochs'])
     dataset = dataset.shuffle(buffer_size=10000)
     dataset = dataset.padded_batch(config['hyper_params']['batch_size'], padded_shapes={

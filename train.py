@@ -2,6 +2,7 @@ import tensorflow as tf
 from model.model_fn import create_model
 from model.input_fn import train_input_fn
 from model.loss import composite_loss
+from model.utils import Vocabulary
 import os, json
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,8 @@ RUNTIME_CONFIG = {"root_path": ROOT_PATH}
 CONFIG = {**STATIC_CONFIG, **RUNTIME_CONFIG}
 
 sess = tf.Session()
-next_training_batch = train_input_fn(CONFIG)
+vocabulary = Vocabulary()
+next_training_batch = train_input_fn(vocabulary, CONFIG)
 
 mel_outputs, residual_mels = create_model(next_training_batch,
                                           CONFIG, is_training=True)
