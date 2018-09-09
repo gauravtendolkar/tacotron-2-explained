@@ -4,6 +4,15 @@ This repository is meant to teach the intricacies of writing advanced Recurrent 
 1. How to read a paper
 2. How to implement it in Tensorflow
 
+I choose Tacotron 2 because -
+1. Encoder-Decoder architectures contain more complexities then standard DNNs. Implementing one helps you master concepts you would otherwise overlook
+2. Tachotron 2 was released less than a year ago (as of 2018) and is a relatively simple model (compared to something like GNTM). The associated paper explains the architecture well
+3. Other public implementations offer a benchmark to compare results
+4. Public datasets are available to achieve state of the art results
+4. Training requires ~10 days given access to a GPU (comparable to GTX 1080)
+
+Note: This code has no affiliation with the companies I worked at. I used none of the proprietery knowledge of any of those companies to write this code. This was purely an exercise in self study.
+
 The paper followed in this repository is - [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884). The repository only implements the Text to Mel Spectrogram part (called Tacotron 2). The repository does not include the vocoder used to synthesize audio.
 
 This is a production grade code which can be used as state of the art TTS frontend. The blog post \[TODO\] shows some audio samples synthesized with a Griffin Lin vocoder. But the code has excess comments to aid a novice Tensorflow user which could be a hindrance. 
