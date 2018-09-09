@@ -1,5 +1,20 @@
 import tensorflow as tf
 from tensorflow.contrib import ffmpeg
+from collections import defaultdict
+
+
+class Vocabulary:
+    def __init__(self):
+        _allowed_characters = 'abcdefghijklmnopqrstuvwxyz1234567890!.,#$%@()=+*/'
+        self.vocabulary_size = len(_allowed_characters)
+        self._char2idx = dict([(_allowed_characters[i], i) for i in range(len(_allowed_characters))])
+        self._idx2char = dict([(value, key) for key , value in self._char2idx.items()])
+        self._char2idx = defaultdict(lambda: self.vocabulary_size, self._char2idx)
+        self._idx2char = defaultdict(lambda: self.vocabulary_size, self._idx2char)
+
+    def text2idx(self, text):
+        encoded = tf.py_func(lambda x: self._char2idx[x.lower()], [text], tf.int64, stateful=False)
+        return encoded
 
 
 def parse_csv_line(line, config):
@@ -31,12 +46,17 @@ def parse_csv_line(line, config):
 
     # Now note that SparseTensors do not support all usual Tensor operations
     # To use tf.map_fn on a SparseTensor, we have to create a new SparseTensor in the following way
-    # Here _ord is the function that maps a character to a unique number
-    text_idx = tf.SparseTensor(text.indices, tf.map_fn(_ord, text.values, dtype=tf.uint8), text.dense_shape)
+
+    # Also note that embedding layer will expect indexes of dtype tf.int64
+    # Also, the vocabulary dict stores values as int64
+
+    vocabulary = Vocabulary()
+    text_idx = tf.SparseTensor(text.indices,
+                               tf.map_fn(vocabulary.text2idx, text.values, dtype=tf.int64),
+                               text.dense_shape)
 
     # We have to convert this SparseTensor back to dense to support future operations
-    # Also note that embedding layer will expect indexes of dtype tf.int64 and not tf.uint8, so we cast
-    text_idx = tf.sparse_tensor_to_dense(tf.cast(text_idx, dtype=tf.int64)) # Shape - (1, T)
+    text_idx = tf.sparse_tensor_to_dense(text_idx) # Shape - (1, T)
     text_idx = tf.squeeze(text_idx) # Shape - (T,)
 
     # We also require lengths of every input sequence as inputs to model
@@ -96,17 +116,6 @@ def parse_csv_line(line, config):
             'target_sequence_lengths': target_sequence_lengths,
             'target_inputs': target_inputs,
             'debug_data': waveform}
-
-
-def _ord(text):
-    text_lower = tf.py_func(lambda x: x.lower(), [text], tf.string, stateful=False)
-    ord_text = tf.squeeze(tf.decode_raw(text_lower, out_type=tf.uint8))
-    encoded = tf.where(condition(ord_text), ord_text-96, 0)
-    return encoded
-
-
-def condition(x):
-    return tf.logical_and(tf.greater_equal(x, 97), tf.less_equal(x, 122))
 
 
 def train_input_fn(config):
