@@ -1,6 +1,9 @@
 import tensorflow as tf
 from tensorflow.contrib import ffmpeg
 
+# NOTE: Librosa is another good library for processing audio but
+# I have been unable to use it with tf.data structure
+
 
 def parse_csv_line(line, vocabulary, config):
     # tf.decode_csv converts CSV records to tensors. Not read CSV files!
@@ -83,16 +86,25 @@ def parse_csv_line(line, vocabulary, config):
 
     mel_spectrograms = tf.squeeze(mel_spectrograms)  # Removes all dimensions that are 1
 
-    target_inputs = mel_spectrograms
+    # This finishes processing of audio
+    # Now we build the targets and inputs to the decoder
 
+    # We append a frame of 0s at the end of targets to signal end of target
     end_tensor = tf.tile([[0.0]], multiples=[1, tf.shape(mel_spectrograms)[-1]])
-
     targets = tf.concat([mel_spectrograms, end_tensor], axis=0)
-    targets = tf.slice(targets, begin=[1, 0], size=[-1, -1])
 
+    # We append a frame of 0s at the start of decoder_inputs to set input at t=1
+    start_tensor = tf.tile([[0.0]], multiples=[1, tf.shape(mel_spectrograms)[-1]])
+    target_inputs = tf.concat([start_tensor, mel_spectrograms], axis=0)
+
+    # Again, we require lengths of every target sequence as inputs to model
+    # This ia because we will create batches of variable length input
+    # where all sequences are forced to same length by padding at the end with 0s
+    # This batch will be passed to an Dynamic RNN which will use sequence lengths
+    # to mask the outputs appropriately. The RNN will be unrolled to the common length though
+    # This method enables us to do mini batch SGD for variable length inputs
     target_sequence_lengths = tf.shape(targets)[0]
 
-    # We are done with processing audio into MFCCs (which is our target to Tacotron)
     # Now we return the values that our model requires as a dict (just like old feed_dict structure)
     return {'inputs': text_idx,
             'targets': targets,
@@ -103,6 +115,9 @@ def parse_csv_line(line, vocabulary, config):
 
 
 def train_input_fn(vocabulary, config):
+    # Note that all these operations are added to the graph.
+    # Its just that this part of graph does not contain any trainable variables
+
     dataset = tf.data.TextLineDataset(config['general']['input_csv'])
     dataset = dataset.skip(config['data']['num_csv_header_lines'])
     dataset = dataset.map(lambda line: parse_csv_line(line, vocabulary, config))
