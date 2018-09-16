@@ -116,9 +116,11 @@ def create_model(data, config, is_training=True):
             dtype=tf.float32,
         )
 
+        # We concat outputs of both directions
         outputs = tf.concat(outputs, axis=1, name='concat_blstm_outputs')
 
-        # Now we are done with the encoder part and we will be moving on to the third critical aspect of model - Attention
+        # Now we are done with the encoder part and we will be moving on to the
+        # third critical aspect of model - Attention
         # The paper says -
         # "The encoder output is consumed by an attention network which
         # summarizes the full encoded sequence as a fixed-length context vector

@@ -19,7 +19,7 @@ class CustomTrainingHelper(Helper):
     def __init__(self, inputs, sequence_length, target_inputs, batch_size, time_major=False, name=None, teacher_forcing_p=0.5):
         self._lengths = sequence_length
         self._teacher_forcing_p = teacher_forcing_p
-        self._batch_size = batch_size# if not time_major else inputs.shape[1]
+        self._batch_size = batch_size # if not time_major else inputs.shape[1]
         self._output_dim = inputs.shape[2]
         self._inputs = inputs
         self._target_inputs = target_inputs
@@ -98,7 +98,7 @@ class CustomTrainingHelper(Helper):
 class CustomTestHelper(Helper):
     def __init__(self, inputs, sequence_length, target_inputs, batch_size, time_major=False, name=None):
         self._lengths = sequence_length
-        self._batch_size = batch_size# if not time_major else inputs.shape[1]
+        self._batch_size = batch_size # if not time_major else inputs.shape[1]
         self._output_dim = inputs.shape[2]
         self._inputs = inputs
         self._target_inputs = target_inputs

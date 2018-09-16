@@ -61,6 +61,7 @@ STATIC_CONFIG = dict(json.load(open('config.json', 'r')))
 RUNTIME_CONFIG = {"root_path": ROOT_PATH}
 CONFIG = {**STATIC_CONFIG, **RUNTIME_CONFIG}
 
+
 # This is the class that holds the mappings of characters to numbers and vice versa
 # The input pipeline uses this to map characters in text to indexes into embedding matrix
 vocabulary = Vocabulary()
@@ -87,6 +88,11 @@ opt_op = opt.minimize(loss)
 # Create session
 sess = tf.Session()
 
+merged = tf.summary.merge_all()
+train_writer = tf.summary.FileWriter(ROOT_PATH+'/logs' + '/train', sess.graph)
+
+saver = tf.train.Saver()
+
 # Initialize all variables
 # Variables only have values after they are initialized and everything must have a value during execution
 # Therefore variable initializers must be run explicitly before any other ops.
@@ -94,7 +100,9 @@ sess = tf.Session()
 # and run that op before using the model. This is what tf.global_variables_initializer() does
 sess.run(tf.global_variables_initializer())
 
+steps = 0
 while True:
+    steps += 1
     try:
 
         '''
@@ -110,16 +118,21 @@ while True:
         will give different values for b1 and b2
         '''
 
-        ntb, l, _ = sess.run([next_training_batch, loss, opt_op])
+        ntb, training_loss, summary, _ = sess.run([next_training_batch, loss, merged, opt_op])
+        train_writer.add_summary(summary, steps)
 
         print("-------OUTPUT---------")
-        print("Loss {}".format(l))
+        print("Loss {} at batch {}".format(training_loss, steps))
 
         print("----INPUT BATCH DETAILS------")
         for key, value in ntb.items():
             print('{} - {}'.format(key, value.shape))
 
+        if steps % 10 == 0:
+            saver.save(sess, './logs/tacotron-2-explained', global_step=steps)
+
     except tf.errors.OutOfRangeError:
+        saver.save(sess, './logs/tacotron-2-explained-final', global_step=steps)
         print("----TRAINING OVER------")
         break
 

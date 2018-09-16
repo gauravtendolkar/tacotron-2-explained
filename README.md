@@ -15,10 +15,11 @@ Note: This code has no affiliation with the companies I worked at. I used none o
 
 The paper followed in this repository is - [Natural TTS Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions](https://arxiv.org/abs/1712.05884). The repository only implements the Text to Mel Spectrogram part (called Tacotron 2). The repository does not include the vocoder used to synthesize audio.
 
-This is a production grade code which can be used as state of the art TTS frontend. The blog post \[TODO\] shows some audio samples synthesized with a Griffin Lin vocoder. But the code has excess comments to aid a novice Tensorflow user which could be a hindrance. 
+This is a production grade code which can be used as state of the art TTS frontend. The blog post \[TODO\] shows some audio samples synthesized with a Griffin Lin vocoder. But the code has excess comments to aid a novice Tensorflow user which could be a hindrance. To read the code, start from ```train.py```
 
-The repository also uses Tensorflow's tf.data API for pre-processing and Estimator API for modularity
+The repository also uses Tensorflow's tf.data API for pre-processing and \[TODO\] Estimator API for modularity
  
+
 ## Directory Structure
 The directory structure followed is as specified in [Stanford's CS230 Notes on Tensorflow](https://cs230-stanford.github.io/tensorflow-getting-started.html). We modify the structure a bit to suite our needs.
 ```
